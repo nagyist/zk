@@ -179,15 +179,6 @@ export class Menubar extends zul.Widget {
 	}
 
 	/** @internal */
-	override beforeChildAdded_(child: zk.Widget, insertBefore?: zk.Widget): boolean {
-		if (!(child instanceof zul.menu.Menu) && !(child instanceof zul.menu.Menuitem) && !(child instanceof zul.menu.Menuseparator)) {
-			zk.error('Unsupported child for menubar: ' + child.className);
-			return false;
-		}
-		return true;
-	}
-
-	/** @internal */
 	override onChildAdded_(child: zul.menu.Menu): void {
 		super.onChildAdded_(child);
 		this._checkScrolling();
@@ -364,7 +355,7 @@ export class Menubar extends zul.Widget {
 	override insertChildHTML_(child: zul.menu.Menu, before?: zk.Widget, desktop?: zk.Desktop): void {
 		var vert = this.isVertical();
 		if (before)
-			jq(before.$n('chdextr') ?? before.$n_()).before(
+			jq(before.$n_()).before(
 				this.encloseChildHTML_({ child: child, vertical: vert })!);
 		else
 			jq(this.$n_('cave')).append(
@@ -376,7 +367,6 @@ export class Menubar extends zul.Widget {
 	/** @internal */
 	override removeChildHTML_(child: zul.menu.Menu, ignoreDom?: boolean): void {
 		super.removeChildHTML_(child, ignoreDom);
-		jq(child.$n_('chdextr')).remove();
 	}
 
 	/** @internal */

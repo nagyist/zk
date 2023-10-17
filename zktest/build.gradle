@@ -79,35 +79,37 @@ dependencies {
 	implementation "org.zkoss.zk:zuti:${version}"
 	if (project.ext['zktestWithoutA11y'] == 'false') {
 		implementation "org.zkoss.zk:za11y:${version}"
+	} else {
+		testCompileOnly "org.zkoss.zk:za11y:${version}"
 	}
 	implementation 'org.zkoss.zkforge.el:zcommons-el:1.1.0'
 	implementation 'org.zkoss.addon:flashchart:1.0'
 	implementation 'commons-lang:commons-lang:2.6'
 	implementation 'commons-beanutils:commons-beanutils:1.9.4'
-	implementation 'com.google.javascript:closure-compiler-unshaded:v20200426'
-	implementation 'net.sf.jasperreports:jasperreports:6.17.0'
+	implementation 'com.google.javascript:closure-compiler-unshaded:v20230802'
+	implementation 'net.sf.jasperreports:jasperreports:6.20.5'
 	implementation 'org.jfree:jfreechart:1.0.19'
 	implementation 'com.jhlabs:filters:2.0.235-1'
 	implementation 'org.zkoss.zkforge:ckez:4.21.0.0'
 	implementation 'org.zkoss.zkforge:timelinez:2.3.1_50'
 	implementation 'org.zkoss.zkforge:timeplotz:1.1_50'
 	implementation 'org.zkoss.zkforge:gmapsz:3.1.0'
-	implementation 'org.hibernate:hibernate-validator:5.3.6.Final'
+	implementation 'org.hibernate:hibernate-validator:6.0.23.Final'
 	implementation 'javax.validation:validation-api:1.1.0.Final'
 
 	// fix for DestroyTest.java that org.eclipse.jetty:apache-jsp:10.0.5 depends on slf4j-api 2.0.0-alpha1
-	implementation 'org.slf4j:slf4j-jdk14:2.0.3'
+	implementation 'org.slf4j:slf4j-jdk14:2.0.7'
 	implementation 'javax.inject:javax.inject:1'
-	implementation 'javax.enterprise:cdi-api:1.0'
-	implementation 'org.javassist:javassist:3.28.0-GA'
+	implementation 'javax.enterprise:cdi-api:2.0.SP1'
+	implementation 'org.javassist:javassist:3.29.2-GA'
 	implementation 'org.easymock:easymock:3.4'
 	implementation 'de.odysseus.juel:juel-spi:2.2.7'
 	implementation 'de.odysseus.juel:juel-impl:2.2.7'
 	runtimeOnly 'org.apache-extras.beanshell:bsh:2.0b6'
-	runtimeOnly 'org.codehaus.groovy:groovy-all:1.5.6'
-	runtimeOnly 'org.mozilla:rhino:1.7R4'
+	runtimeOnly 'org.apache.groovy:groovy:5.0.0-alpha-1'
+	runtimeOnly 'org.mozilla:rhino:1.7.14'
 //	testImplementation 'org.jruby:jruby-core:1.7.27'
-//	testImplementation 'org.python:jython:2.2.1'
+	runtimeOnly 'org.python:jython:2.2.1'
 	testImplementation 'org.zkoss.zats:zats-mimic-ext:10.0.0-FL-2022070817'
 	testImplementation 'net.jcip:jcip-annotations:1.0'
 	testImplementation 'com.deque.html.axe-core:selenium:4.7.0'
@@ -124,7 +126,7 @@ dependencies {
 	// For B96_ZK_4194Test to use a specific Chrome driver version (this will change to match latest chrome)
 	testImplementation 'org.seleniumhq.selenium:selenium-devtools-v115:4.11.0'
 	testImplementation "org.seleniumhq.selenium:selenium-java:4.11.0"
-	testImplementation 'com.google.javascript:closure-compiler-unshaded:v20230411'
+	testImplementation 'com.google.javascript:closure-compiler-unshaded:v20230802'
 
 	providedCompile 'javax.el:javax.el-api:2.2.5'
 	providedCompile 'javax.servlet:javax.servlet-api:3.1.0'
@@ -149,11 +151,12 @@ task testGroupForkJVMTestOnly(type: Test) {
 	maxParallelForks = Runtime.runtime.availableProcessors().intdiv(4) ?: 1
 	if (project.hasProperty('maxParallelForks'))
 		maxParallelForks = project.maxParallelForks as int
+
+
+	exclude 'org/zkoss/zktest/zats/wcag/**'
+	
 	if (project.ext['zktestWithoutA11y'] != 'false') {
 		reports.junitXml.destination = file("$buildDir/test-results/no-A11Y/testGroupForkJVMTestOnly")
-		filter {
-			excludeTestsMatching('*.wcag.*')
-		}
 		useJUnitPlatform {
 			includeTags 'ForkJVMTestOnly'
 			excludeTags 'WcagTestOnly'
@@ -181,18 +184,40 @@ task npmInstallLighthouse(type: Exec) {
 	outputs.dir("${project.buildDir}/lighthouse/")
 	commandLine 'npm', 'install', '-g', 'lighthouse@10.4.0'
 }
-
-test {
+task testWCAGOnly(type: Test) {
 	dependsOn npmInstallLighthouse
+	forkEvery = 1 // a new test process is started for every test class
+	maxParallelForks = 1 // default 1 process, because it will hang in Jenkins
+	if (project.hasProperty('maxParallelForks'))
+		maxParallelForks = project.maxParallelForks as int
+
+	include 'org/zkoss/zktest/zats/wcag/**'
+
+	systemProperty "zkWebdriverContextPath", "/zktest"
+	systemProperty "zkWebdriverTestURLPackage", "org.zkoss.zktest.zats"
+
+	// a way to pass -Dtags=...
+	options {
+		systemProperties(System.getProperties())
+	}
+
+	useJUnitPlatform();
+
+	// for Jenkins' info
+	testLogging {
+		events("standardOut", "started", "passed", "skipped", "failed")
+	}
+}
+test {
 	forkEvery = 0 // reuse the test process for all test classes
 	maxParallelForks = Runtime.runtime.availableProcessors().intdiv(4) ?: 1
 	if (project.hasProperty('maxParallelForks'))
 		maxParallelForks = project.maxParallelForks as int
+
+	exclude 'org/zkoss/zktest/zats/wcag/**'
+
 	if (project.ext['zktestWithoutA11y'] != 'false') {
 		reports.junitXml.destination = file("$buildDir/test-results/no-A11Y/test")
-		filter {
-			excludeTestsMatching('*.wcag.*')
-		}
 		useJUnitPlatform {
 			excludeTags 'WcagTestOnly', 'ForkJVMTestOnly'
 		}
@@ -300,8 +325,8 @@ def addClassPath(gradle, beforeClassPath, visitedBuilds, allowedWorkspace, subpr
 	gradle.includedBuilds.each {
 		if (visitedBuilds.contains(it.name)) return
 		visitedBuilds << it.name
-		def rootGradle = it.properties['gradle']
-		it.properties['availableModules'].each {
+		def rootGradle = it.properties['target'].properties['buildController'].gradle
+		it.properties['target'].properties['availableModules'].each {
 
 			def prj = rootGradle.rootProject.findProject(it.right.identityPath.toString())
 			if (!prj) {

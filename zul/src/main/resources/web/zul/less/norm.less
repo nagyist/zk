@@ -1,5 +1,6 @@
 @import "~./zul/less/_header.less";
 @import "~./zul/less/_reset.less";
+@import "~./zul/less/font/_variables.less";
 
 e('<c:if test="${empty c:property(@{browserDefault})}">');
 html, body {
@@ -16,10 +17,6 @@ e('</c:if>');
 [class*=" z-"]:before,
 .z-borderbox {
 	.applyCSS3('box-sizing', 'border-box');
-}
-[class^="z-icon-"],
-[class*=" z-icon-"] {
-	font-family: ZK85Icons, FontAwesome; // Default theme uses some override font
 }
 
 // Reset
@@ -107,7 +104,7 @@ e('</c:if>');
 		margin-left: @errorButtonMarginLeft;
 		cursor: pointer;
 		float: right;
-		
+
 		> .z-icon-times {
 			font-size: @errorCloseButtonFontSize;
 		}
@@ -125,12 +122,12 @@ e('</c:if>');
 //zk.log box
 div.z-log {
 	width: 50%;
-	text-align: right;  
+	text-align: right;
 	position: absolute;
 	right: 10px;
 	bottom: 5px;
 	z-index: 99000;
-	
+
 	textarea {
 		width: 100%;
 		border-color: rgba(82,168,236,0.8);
@@ -538,7 +535,7 @@ div.z-log {
 	-moz-user-select: text;
 	-khtml-user-select: text;
 	overflow: hidden;
-	
+
 	&:focus {
 		-moz-outline: 0 none;
 		outline: 0 none;

@@ -20,6 +20,13 @@ ZK 10.0.0
   ZK-5533: Add all new HTML5 tags in ZK 10 ZHTML
   ZK-5049: Deprecate org.zkoss.zk.ui.uuidRecycle.disabled in ZK10
   ZK-5437: Upgrade WCAG with the lighthouse 10.x detection tools
+  ZK-5408: Enable InaccessibleWidgetBlockService by default
+  ZK-4928: expose widget private functions and variables as public ones
+  ZK-5119: Integrate Font Awesome 6 free icons
+  ZK-5541: Move widget restriction check to Client MVVM
+  ZK-5354: Update animation implementation to avoid iframe reloading
+  ZK-4969: dropupload supports accept file type
+  ZK-4494: Tree shall provide enough information to decorate lines with CSS
 
 * Bugs
   ZK-5089: AfterSizeEvent doesn't return a correct size of a Window component
@@ -55,7 +62,12 @@ ZK 10.0.0
   ZK-5490: Grid's [aria-*] attributes do not match their roles
   ZK-5525: Checkbox tristate [aria-checked] attribute missing "mixed" state
   ZK-5235: Opening a menupopup moves a scrollbar of a long menu back to top
-
+  ZK-5539: $init() will call twice on Keikai component
+  ZK-5540: zk.wpd with browser condition won't work with ZK 10
+  ZK-5530: users cannot focus on the icons on the Calendar header
+  ZK-5035: Listbox renders duplicate checkmarks after adding 1st listheader dynamically
+  ZK-5453: XSS in chosenbox
+  ZK-5025: redundant selection highlight on a menupopup
 
 * Upgrade Notes
   + The Java binary-compatible level is Java 11 since ZK 10.
@@ -76,6 +88,19 @@ ZK 10.0.0
   + Remove Applet, Flash, and FusionChart components since ZK 10.0.0
   + Deprecated org.zkoss.zk.ui.uuidRecycle.disabled since ZK 10.0.0
   + Revert ZK-5026 which the original bug cannot be reproduced to fix ZK-5235.
+  + Enable InaccessibleWidgetBlockService by default, to disable it, set library-property `org.zkoss.zkmax.au.IWBS.disable` to `true`. (for ZK EE)
+  + Since InaccessibleWidgetBlockService is enable by default, it will block echo event if the component is disabled or invisible by default also. (for ZK EE)
+  + Upgrade jasperreports to 6.20.5 version for fix some vulnerabilities from dependencies and drop the itext dependency.
+  + Remove Acegi and Hibernate integration utiles in zkplus module
+  + Upgrade rhino to 1.7.14, groovy to 5.0.0-alpha-1, and closure-compiler to v20230802 for fixing vulnerabilities
+  + Upgrade gson to 2.10.1 for fixing vulnerabilities
+  + Upgrade jackson-databind to 2.15.2 for fixing vulnerabilities
+  + Upgrade Font Awesome version from 4.7.0 to 6.4.2, and previous iconSclass syntax will continue to be supported
+  + Refix ZK-5260 by running the prepareString method to remove scripts for HTML and
+  escape special characters for non-HTML before rendering model items of a chosenbox.
+  + Dropupload now can use `accept` to set the acceptable file types with MIME format, use `accept` attribute in zul file,
+  and use `setAccept()` in Java API.
+  + ZSciprt using python and the corresponding jython dependency are now optional.
 
    --------
 ZK 9.6.4

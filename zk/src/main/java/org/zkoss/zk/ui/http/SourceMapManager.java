@@ -133,7 +133,7 @@ public class SourceMapManager implements Serializable {
 		String wpdFileName = "js/src/" + _name + ".wpd.src.js";
 		String wpdFilePath = _sourceRoot + wpdFileName;
 		String wpdFileContent = this._preScript + new String(data) + this._postScript;
-		SourceFile wpdSourceFile = _builder.buildFromCode(wpdFilePath, wpdFileContent);
+		SourceFile wpdSourceFile = _builder.withPath(wpdFilePath).withContent(wpdFileContent).build();
 		cacheJsSource(sourceCache, "/" + wpdFileName, wpdFileContent);
 		jsSourceFiles.add(wpdSourceFile);
 
@@ -180,7 +180,7 @@ public class SourceMapManager implements Serializable {
 			if (jsRealPath.startsWith(File.separator)) {
 				jsRealPath = _sourceRoot + jsRealPath.substring(1);
 			}
-			SourceFile sourceFile = _builder.buildFromCode(jsRealPath, jsContent);
+			SourceFile sourceFile = _builder.withPath(jsRealPath).withContent(jsContent).build();
 			sourceFiles.add(sourceFile);
 		}
 	}

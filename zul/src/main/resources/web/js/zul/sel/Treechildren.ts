@@ -94,15 +94,6 @@ export class Treechildren extends zul.Widget {
 		return false; // fixed for ZK Client selector issue
 	}
 
-	/** @internal */
-	override beforeChildAdded_(child: zk.Widget, insertBefore?: zk.Widget): boolean {
-		if (!(child instanceof zul.sel.Treeitem)) {
-			zk.error('Unsupported child for treechildren: ' + child.className);
-			return false;
-		}
-		return true;
-	}
-
 	override insertBefore(child: zul.sel.Treeitem, sibling?: zk.Widget, ignoreDom?: boolean): boolean {
 		var oldsib = _prevsib(child);
 		if (super.insertBefore(child, sibling, ignoreDom)) {
@@ -306,5 +297,13 @@ export class Treechildren extends zul.Widget {
 			jq(n).replaceWith(content);
 		}
 		child.bind(desktop, skipper);
+	}
+
+	/** @internal */
+	getLastVisibleItem_(): zul.sel.Treeitem | undefined {
+		for (let w = this.lastChild; w; w = w.previousSibling) {
+			if (w._isVisibleInTree()) return w;
+		}
+		return undefined;
 	}
 }

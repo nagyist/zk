@@ -1362,20 +1362,6 @@ export class Window extends zul.ContainerWidget {
 	}
 
 	/** @internal */
-	override beforeChildAdded_(child: zk.Widget, insertBefore?: zk.Widget): boolean {
-		if (child instanceof zul.wgt.Caption) {
-			if (this.caption && this.caption != child) {
-				zk.error('Only one caption is allowed: ' + this.className);
-				return false;
-			}
-		} else if (insertBefore instanceof zul.wgt.Caption) {
-			zk.error('caption must be the first child: ' + this.className);
-			return false;
-		}
-		return true;
-	}
-
-	/** @internal */
 	override onChildAdded_(child: zk.Widget): void {
 		super.onChildAdded_(child);
 		if (child instanceof zul.wgt.Caption) {
@@ -1451,9 +1437,12 @@ export class Window extends zul.ContainerWidget {
 		this.unbindChildren_();
 		// ZK-2247: remove iframe to prevent load twice
 		if (zk.ie11 || zk.chrome) {
-			var $jq = jq(this.$n_()).find('iframe');
-			if ($jq.length)
-				$jq.hide().remove();
+			const n = this.$n();
+			if (n) {
+				var $jq = jq(n).find('iframe');
+				if ($jq.length)
+					$jq.hide().remove();
+			}
 		}
 		super.detach();
 	}
